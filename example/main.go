@@ -46,6 +46,6 @@ func sub() {
 		if err != nil {
 			panic(err)
 		}
-		log.Println("event:", v)
+		log.Println("event:", v.Name)
 	}
 }
