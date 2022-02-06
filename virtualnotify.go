@@ -154,3 +154,23 @@ func (p *VirtualNotify) Publish(eventName string) error {
 
 	return nil
 }
+
+func (p *VirtualNotify) EventsChan() <-chan Event {
+	return p.events
+}
+
+func (p *VirtualNotify) Close() {
+	p.stopChan <- struct{}{}
+	p.Cleanup()
+	close(p.events)
+}
+
+var ErrClosed = os.ErrClosed
+
+func (p *VirtualNotify) Next() (Event, error) {
+	v, ok := <-p.events
+	if !ok {
+		return Event{}, ErrClosed
+	}
+	return v, nil
+}
