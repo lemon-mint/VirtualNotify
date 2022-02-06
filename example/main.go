@@ -29,7 +29,6 @@ func pub() {
 	if err != nil {
 		panic(err)
 	}
-	time.Sleep(time.Second)
 }
 
 func sub() {
@@ -40,7 +39,7 @@ func sub() {
 		panic(err)
 	}
 
-	go vn.Run(time.Second)
+	go vn.Run(time.Millisecond * 500)
 
 	for {
 		v, err := vn.Next()
