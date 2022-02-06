@@ -3,6 +3,7 @@ package virtualnotify
 import (
 	"crypto/sha256"
 	"encoding/base32"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -137,7 +138,11 @@ func (p *VirtualNotify) Cleanup() {
 	}
 }
 
-func (p *VirtualNotify) Publish(eventName string) error {
+var ErrTimeout = fmt.Errorf("timeout")
+
+func (p *VirtualNotify) PublishTimeout(eventName string, timeout time.Duration) error {
+	t := time.Now().Add(timeout).UnixNano()
+
 	err := p.fl.Lock()
 	if err != nil {
 		return err
@@ -147,12 +152,23 @@ func (p *VirtualNotify) Publish(eventName string) error {
 	f := "vn_" + p.nameSpace + "_" + hashstr(eventName) + ".virtualnotify"
 	f = filepath.Join(TempDir, f)
 
+retry:
 	err = os.Remove(f)
 	if err != nil {
+		if !os.IsPermission(err) {
+			if time.Now().UnixNano() >= t && timeout != 0 {
+				return ErrTimeout
+			}
+			goto retry
+		}
 		return err
 	}
 
 	return nil
+}
+
+func (p *VirtualNotify) Publish(eventName string) error {
+	return p.PublishTimeout(eventName, 0)
 }
 
 func (p *VirtualNotify) EventsChan() <-chan Event {

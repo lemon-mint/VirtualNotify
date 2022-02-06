@@ -27,6 +27,8 @@ func pub() {
 
 	err := vn.Publish("e1")
 	if err != nil {
+		log.Println(err)
+		time.Sleep(time.Second * 2)
 		panic(err)
 	}
 }
