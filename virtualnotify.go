@@ -52,7 +52,7 @@ func New(ns string) *VirtualNotify {
 		nameSpace: hashstr(ns),
 		lockfile:  f,
 		fl:        fl,
-		events:    make(chan Event),
+		events:    make(chan Event, 32),
 		stopChan:  make(chan struct{}),
 	}
 }
