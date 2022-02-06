@@ -198,6 +198,7 @@ func WaitForEvent(ns string, eventName string) error {
 	if err != nil {
 		return err
 	}
+	go vn.Run(time.Millisecond * 100)
 retry:
 	ev, err := vn.Next()
 	if err != nil {
