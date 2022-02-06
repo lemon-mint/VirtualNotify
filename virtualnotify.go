@@ -190,3 +190,21 @@ func (p *VirtualNotify) Next() (Event, error) {
 	}
 	return v, nil
 }
+
+func WaitForEvent(ns string, eventName string) error {
+	vn := New(ns)
+	defer vn.Close()
+	err := vn.Subscribe(eventName)
+	if err != nil {
+		return err
+	}
+retry:
+	ev, err := vn.Next()
+	if err != nil {
+		return err
+	}
+	if ev.Name == eventName {
+		return nil
+	}
+	goto retry
+}
